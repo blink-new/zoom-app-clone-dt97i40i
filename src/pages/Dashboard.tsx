@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
+import MeetingNotifications from '@/components/MeetingNotifications'
+import MeetingSettings from '@/components/MeetingSettings'
 import { 
   Video, 
   Calendar, 
@@ -13,12 +15,16 @@ import {
   Clock,
   Search,
   Monitor,
-  Phone
+  Phone,
+  History,
+  Star,
+  Zap
 } from 'lucide-react'
 
 export default function Dashboard() {
   const navigate = useNavigate()
   const [meetingId, setMeetingId] = useState('')
+  const [showSettings, setShowSettings] = useState(false)
 
   const handleJoinMeeting = () => {
     if (meetingId.trim()) {
@@ -78,7 +84,12 @@ export default function Dashboard() {
                 className="pl-10 w-64"
               />
             </div>
-            <Button variant="ghost" size="icon">
+            <MeetingNotifications />
+            <Button 
+              variant="ghost" 
+              size="icon"
+              onClick={() => setShowSettings(true)}
+            >
               <Settings className="h-5 w-5" />
             </Button>
             <div className="h-8 w-8 bg-blue-600 rounded-full flex items-center justify-center">
@@ -244,14 +255,23 @@ export default function Dashboard() {
                   Whiteboard
                 </Button>
                 <Button variant="ghost" className="w-full justify-start">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Clips
+                  <History className="h-4 w-4 mr-2" />
+                  Recordings
+                </Button>
+                <Button variant="ghost" className="w-full justify-start">
+                  <Star className="h-4 w-4 mr-2" />
+                  Starred
                 </Button>
               </CardContent>
             </Card>
           </div>
         </div>
       </div>
+      
+      <MeetingSettings 
+        isOpen={showSettings} 
+        onClose={() => setShowSettings(false)} 
+      />
     </div>
   )
 }

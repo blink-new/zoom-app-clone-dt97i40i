@@ -5,24 +5,19 @@ import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import MeetingControls from '@/components/MeetingControls'
+import MeetingNotifications from '@/components/MeetingNotifications'
 import { 
-  Mic, 
-  MicOff, 
-  Video, 
-  VideoOff, 
-  Monitor, 
-  Phone, 
-  MessageSquare,
-  Users,
   Settings,
   MoreHorizontal,
-  Hand,
-  Grid3X3,
   User,
   Send,
   X,
-  Volume2,
-  VolumeX
+  Mic,
+  MicOff,
+  Video,
+  VideoOff,
+  Hand
 } from 'lucide-react'
 
 interface Participant {
@@ -54,6 +49,8 @@ export default function MeetingRoom() {
   const [chatMessage, setChatMessage] = useState('')
   const [isHandRaised, setIsHandRaised] = useState(false)
   const [isSpeakerMuted, setIsSpeakerMuted] = useState(false)
+  const [isRecording, setIsRecording] = useState(false)
+  const [connectionQuality, setConnectionQuality] = useState<'good' | 'fair' | 'poor'>('good')
 
   const [participants] = useState<Participant[]>([
     { id: '1', name: 'You', isHost: true, isMuted: false, hasVideo: true, isHandRaised: false },
@@ -70,6 +67,17 @@ export default function MeetingRoom() {
     { id: '3', sender: 'You', message: 'Yes, audio is good', timestamp: '10:31 AM' },
     { id: '4', sender: 'Carol Davis', message: 'Great presentation so far', timestamp: '10:35 AM' },
   ])
+
+  // Simulate connection quality changes
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const qualities: ('good' | 'fair' | 'poor')[] = ['good', 'good', 'good', 'fair', 'poor']
+      const randomQuality = qualities[Math.floor(Math.random() * qualities.length)]
+      setConnectionQuality(randomQuality)
+    }, 15000) // Change every 15 seconds
+
+    return () => clearInterval(interval)
+  }, [])
 
   const handleLeaveMeeting = () => {
     navigate('/')
@@ -262,96 +270,32 @@ export default function MeetingRoom() {
         )}
       </div>
 
-      {/* Controls Bar */}
-      <div className="bg-gray-800 px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <Button
-              variant={isMuted ? "destructive" : "secondary"}
-              size="sm"
-              onClick={() => setIsMuted(!isMuted)}
-              className="flex items-center space-x-2"
-            >
-              {isMuted ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
-              <span>{isMuted ? 'Unmute' : 'Mute'}</span>
-            </Button>
-            
-            <Button
-              variant={hasVideo ? "secondary" : "destructive"}
-              size="sm"
-              onClick={() => setHasVideo(!hasVideo)}
-              className="flex items-center space-x-2"
-            >
-              {hasVideo ? <Video className="h-4 w-4" /> : <VideoOff className="h-4 w-4" />}
-              <span>{hasVideo ? 'Stop Video' : 'Start Video'}</span>
-            </Button>
-          </div>
+      {/* Advanced Meeting Controls */}
+      <MeetingControls
+        isMuted={isMuted}
+        hasVideo={hasVideo}
+        isScreenSharing={isScreenSharing}
+        showChat={showChat}
+        showParticipants={showParticipants}
+        viewMode={viewMode}
+        isHandRaised={isHandRaised}
+        isSpeakerMuted={isSpeakerMuted}
+        isRecording={isRecording}
+        connectionQuality={connectionQuality}
+        onMuteToggle={() => setIsMuted(!isMuted)}
+        onVideoToggle={() => setHasVideo(!hasVideo)}
+        onScreenShareToggle={() => setIsScreenSharing(!isScreenSharing)}
+        onChatToggle={() => setShowChat(!showChat)}
+        onParticipantsToggle={() => setShowParticipants(!showParticipants)}
+        onViewModeToggle={() => setViewMode(viewMode === 'gallery' ? 'speaker' : 'gallery')}
+        onHandRaiseToggle={() => setIsHandRaised(!isHandRaised)}
+        onSpeakerToggle={() => setIsSpeakerMuted(!isSpeakerMuted)}
+        onRecordingToggle={() => setIsRecording(!isRecording)}
+        onLeaveMeeting={handleLeaveMeeting}
+      />
 
-          <div className="flex items-center space-x-2">
-            <Button
-              variant={isScreenSharing ? "default" : "secondary"}
-              size="sm"
-              onClick={() => setIsScreenSharing(!isScreenSharing)}
-            >
-              <Monitor className="h-4 w-4 mr-2" />
-              {isScreenSharing ? 'Stop Share' : 'Share Screen'}
-            </Button>
-            
-            <Button
-              variant={showParticipants ? "default" : "secondary"}
-              size="sm"
-              onClick={() => setShowParticipants(!showParticipants)}
-            >
-              <Users className="h-4 w-4 mr-2" />
-              Participants
-            </Button>
-            
-            <Button
-              variant={showChat ? "default" : "secondary"}
-              size="sm"
-              onClick={() => setShowChat(!showChat)}
-            >
-              <MessageSquare className="h-4 w-4 mr-2" />
-              Chat
-            </Button>
-            
-            <Button
-              variant={viewMode === 'gallery' ? "default" : "secondary"}
-              size="sm"
-              onClick={() => setViewMode(viewMode === 'gallery' ? 'speaker' : 'gallery')}
-            >
-              <Grid3X3 className="h-4 w-4 mr-2" />
-              {viewMode === 'gallery' ? 'Speaker' : 'Gallery'}
-            </Button>
-            
-            <Button
-              variant={isHandRaised ? "default" : "secondary"}
-              size="sm"
-              onClick={() => setIsHandRaised(!isHandRaised)}
-            >
-              <Hand className="h-4 w-4 mr-2" />
-              {isHandRaised ? 'Lower Hand' : 'Raise Hand'}
-            </Button>
-            
-            <Button
-              variant={isSpeakerMuted ? "destructive" : "secondary"}
-              size="sm"
-              onClick={() => setIsSpeakerMuted(!isSpeakerMuted)}
-            >
-              {isSpeakerMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
-            </Button>
-          </div>
-
-          <Button
-            variant="destructive"
-            onClick={handleLeaveMeeting}
-            className="flex items-center space-x-2"
-          >
-            <Phone className="h-4 w-4" />
-            <span>Leave Meeting</span>
-          </Button>
-        </div>
-      </div>
+      {/* Meeting Notifications */}
+      <MeetingNotifications />
     </div>
   )
 }

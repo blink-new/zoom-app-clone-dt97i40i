@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
+import WaitingRoom from '@/components/WaitingRoom'
 import { 
   Video, 
   VideoOff, 
@@ -21,11 +22,30 @@ export default function JoinMeeting() {
   const [hasVideo, setHasVideo] = useState(true)
   const [isMuted, setIsMuted] = useState(false)
   const [rememberName, setRememberName] = useState(true)
+  const [showWaitingRoom, setShowWaitingRoom] = useState(false)
 
   const handleJoinMeeting = () => {
     if (meetingId.trim() && displayName.trim()) {
-      navigate(`/meeting/${meetingId}`)
+      // Simulate waiting room for certain meeting IDs
+      if (meetingId.includes('wait') || meetingId.includes('secure')) {
+        setShowWaitingRoom(true)
+      } else {
+        navigate(`/meeting/${meetingId}`)
+      }
     }
+  }
+
+  const handleAdmittedToMeeting = () => {
+    navigate(`/meeting/${meetingId}`)
+  }
+
+  if (showWaitingRoom) {
+    return (
+      <WaitingRoom 
+        meetingId={meetingId} 
+        onJoinMeeting={handleAdmittedToMeeting}
+      />
+    )
   }
 
   return (
@@ -121,6 +141,9 @@ export default function JoinMeeting() {
                   onChange={(e) => setMeetingId(e.target.value)}
                   className="text-lg"
                 />
+                <p className="text-xs text-gray-500">
+                  💡 Try entering "secure-meeting" or "wait-room" to experience the waiting room feature
+                </p>
               </div>
               
               <div className="space-y-2">
